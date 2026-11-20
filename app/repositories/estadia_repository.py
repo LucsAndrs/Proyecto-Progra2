@@ -1,3 +1,4 @@
+
 from datetime import datetime
 
 from sqlalchemy import select
@@ -11,35 +12,37 @@ class EstadiaRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def registrar_entrada(self, vehiculo_id: int) -> Estadia:
-        try:
-            estadia = Estadia(
-                vehiculo_id=vehiculo_id,
-                fecha_entrada=datetime.now()
-            )
+    def registrar_entrada(
+        self,
+        vehiculo_id: int,
+        suscripcion_id: int | None = None,
+        fecha_entrada: datetime | None = None,
+        modalidad: str | None = None
+    ) -> Estadia:
 
-            self.session.add(estadia)
-            self.session.commit()
-            self.session.refresh(estadia)
+        if fecha_entrada is None:
+            fecha_entrada = datetime.now()
 
-            return estadia
+        estadia = Estadia(
+            vehiculo_id=vehiculo_id,
+            suscripcion_id=suscripcion_id,
+            fecha_entrada=fecha_entrada,
+            modalidad=modalidad
+        )
 
-        except Exception:
-            self.session.rollback()
-            raise
+        self.session.add(estadia)
+        self.session.flush()
+        self.session.refresh(estadia)
+
+        return estadia
 
     def registrar_salida(self, estadia: Estadia) -> Estadia:
-        try:
-            estadia.fecha_salida = datetime.now()
+        estadia.fecha_salida = datetime.now()
 
-            self.session.commit()
-            self.session.refresh(estadia)
+        self.session.flush()
+        self.session.refresh(estadia)
 
-            return estadia
-
-        except Exception:
-            self.session.rollback()
-            raise
+        return estadia
 
     def obtener_activa_por_vehiculo(
         self,

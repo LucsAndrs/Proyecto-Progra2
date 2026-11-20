@@ -35,6 +35,10 @@ class Suscripcion(Base):
         back_populates="suscripciones"
     )
     
+    estadias: Mapped[list["Estadia"]] = relationship(
+        back_populates="suscripcion"
+    )
+
     pagos: Mapped[list["Pago"]] = relationship(
     back_populates="suscripcion"
     )

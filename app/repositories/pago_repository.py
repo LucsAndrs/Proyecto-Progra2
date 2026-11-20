@@ -17,23 +17,19 @@ class PagoRepository:
         estadia_id: int | None = None,
         suscripcion_id: int | None = None
     ) -> Pago:
-        try:
-            pago = Pago(
-                monto=monto,
-                estadia_id=estadia_id,
-                suscripcion_id=suscripcion_id,
-                fecha_pago=datetime.now()
-            )
 
-            self.session.add(pago)
-            self.session.commit()
-            self.session.refresh(pago)
+        pago = Pago(
+            monto=monto,
+            estadia_id=estadia_id,
+            suscripcion_id=suscripcion_id,
+            fecha_pago=datetime.now()
+        )
 
-            return pago
+        self.session.add(pago)
+        self.session.flush()
+        self.session.refresh(pago)
 
-        except Exception:
-            self.session.rollback()
-            raise
+        return pago
 
     def listar_todos(self) -> list[Pago]:
         consulta = select(Pago).order_by(

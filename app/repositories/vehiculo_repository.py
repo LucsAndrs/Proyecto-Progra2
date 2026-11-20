@@ -10,18 +10,13 @@ class VehiculoRepository:
         self.session = session
 
     def guardar(self, patente: str) -> Vehiculo:
-        try:
-            vehiculo = Vehiculo(patente=patente.upper())
+        vehiculo = Vehiculo(patente=patente.upper())
 
-            self.session.add(vehiculo)
-            self.session.commit()
-            self.session.refresh(vehiculo)
+        self.session.add(vehiculo)
+        self.session.flush()
+        self.session.refresh(vehiculo)
 
-            return vehiculo
-
-        except Exception:
-            self.session.rollback()
-            raise
+        return vehiculo
 
     def obtener_por_id(self, vehiculo_id: int) -> Vehiculo | None:
         return self.session.get(Vehiculo, vehiculo_id)

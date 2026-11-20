@@ -19,3 +19,6 @@ __pycache__/
 
 # Pytest
 .pytest_cache/
+
+# Archivo temporal de estructura
+estructura.txt

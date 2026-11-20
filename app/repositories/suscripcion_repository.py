@@ -17,22 +17,18 @@ class SuscripcionRepository:
         fecha_inicio: datetime,
         fecha_fin: datetime
     ) -> Suscripcion:
-        try:
-            suscripcion = Suscripcion(
-                vehiculo_id=vehiculo_id,
-                fecha_inicio=fecha_inicio,
-                fecha_fin=fecha_fin
-            )
 
-            self.session.add(suscripcion)
-            self.session.commit()
-            self.session.refresh(suscripcion)
+        suscripcion = Suscripcion(
+            vehiculo_id=vehiculo_id,
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin
+        )
 
-            return suscripcion
+        self.session.add(suscripcion)
+        self.session.flush()
+        self.session.refresh(suscripcion)
 
-        except Exception:
-            self.session.rollback()
-            raise
+        return suscripcion
 
     def obtener_vigente(
         self,
@@ -50,6 +46,22 @@ class SuscripcionRepository:
         ).order_by(Suscripcion.fecha_fin.desc())
 
         return self.session.scalar(consulta)
+
+    def existe_solapamiento(
+        self,
+        vehiculo_id: int,
+        fecha_inicio: datetime,
+        fecha_fin: datetime
+    ) -> bool:
+
+        consulta = select(Suscripcion.id).where(
+            Suscripcion.vehiculo_id == vehiculo_id,
+            Suscripcion.fecha_inicio < fecha_fin,
+            Suscripcion.fecha_fin > fecha_inicio
+        ).limit(1)
+
+        return self.session.scalar(consulta) is not None
+
 
     def listar_por_vehiculo(
         self,
